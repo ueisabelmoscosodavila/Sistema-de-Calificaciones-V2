@@ -237,6 +237,12 @@
           <div id="dir-body" class="space-y-2 text-xs"></div>
         </div>
         <div class="card space-y-2">
+          <div class="flex justify-between items-center"><h3 class="font-black text-sm">🧩 Habilidades de Acompañamiento Integral (9)</h3>
+            <button onclick="guardarHabilidades()" class="btn btn-primary">💾 Guardar</button></div>
+          <p class="text-[11px] text-slate-600">4 obligatorias para todas las instituciones + 5 que elige la institución según sus necesidades: 1 cognitiva, 3 sociales y 1 emocional (Lineamientos AIA 2023). Se evalúan en la pestaña del tutor y forman la descripción del comportamiento.</p>
+          <div id="hab-body" class="space-y-1 text-xs"></div>
+        </div>
+        <div class="card space-y-2">
           <h3 class="font-black text-sm">📐 Escala de equivalencias vigente</h3>
           <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2">Se edita en la hoja <b>"Escala"</b> de la base de datos. Verifique que coincida con el Acuerdo Ministerial configurado.</p>
           <div id="esc-body"></div>
@@ -251,7 +257,7 @@
           <div><h3 class="font-black text-sm">📝 Registro de calificaciones</h3>
             <p class="text-[11px] text-slate-500">Solo se muestran su jornada, años de básica, paralelos y asignaturas asignados.</p></div>
           <div class="flex gap-2 items-center">
-            <span id="pl-tutor" class="hidden px-2.5 py-1 rounded-full bg-purple-100 text-purple-900 font-black text-[11px]">⭐ Tutor/a de este curso</span>
+            <span id="pl-tutor" class="hidden px-2.5 py-1 rounded-full bg-purple-100 text-purple-900 font-black text-[11px]">⭐ Tutor/a de este curso y jornada</span>
             <span id="pl-bloqueo" class="px-2.5 py-1 rounded-full font-black text-[11px]"></span>
           </div>
         </div>
@@ -385,18 +391,23 @@
       <div><label class="lbl">Correo (para recuperar contraseña)</label><input id="md-cor" class="inp"></div>
       <div><label class="lbl">Jornada *</label><select id="md-jor" class="inp"><option value="Matutina">Matutina</option><option value="Vespertina">Vespertina</option><option value="Ambas">Matutina y Vespertina</option></select></div>
       <div><label class="lbl">Carga horaria semanal *</label><input id="md-car" type="number" min="1" max="40" class="inp"></div>
-      <div><label class="lbl">Optativa / Participación estudiantil</label><select id="md-opt" class="inp"><option value="NO">Ninguna</option><option>Asignatura Optativa</option><option>Participación Estudiantil (PPE)</option></select></div>
+      <div><label class="lbl">Participación Estudiantil (PPE) / optativa general de Bachillerato</label><select id="md-opt" class="inp"><option value="NO">Ninguna</option><option>Asignatura Optativa</option><option>Participación Estudiantil (PPE)</option></select></div>
       <div><label class="lbl">Estado</label><select id="md-est" class="inp"><option>ACTIVO</option><option>INACTIVO</option></select></div>
     </div>
     <div><label class="lbl">Años de básica / cursos *</label><div id="md-gra" class="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-slate-50 border rounded-xl p-2"></div></div>
     <div><label class="lbl">Paralelos *</label><div id="md-par" class="flex gap-3 bg-slate-50 border rounded-xl p-2"></div></div>
     <div><label class="lbl">Asignaturas * <span class="font-normal text-slate-500">("Docente de Aula" habilita Matemática, Lengua y Literatura, Estudios Sociales, Ciencias Naturales y ECA en 2° a 7°; en Inicial/Preparatoria, el registro de destrezas)</span></label>
       <div id="md-asig" class="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-slate-50 border rounded-xl p-2"></div>
-      <input id="md-otras" class="inp mt-1" placeholder="Otras asignaturas, separadas por coma"></div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+      <input id="md-otras" class="inp mt-1" placeholder="Otras asignaturas (cuantitativas), separadas por coma"></div>
+    <div><label class="lbl">Asignaturas optativas que imparte <span class="font-normal text-slate-500">(cualitativas: no se promedian ni son requisito de promoción, Art. 9). Escriba el nombre de cada una, separadas por coma.</span></label>
+      <input id="md-optn" class="inp" placeholder="Ej.: Redacción creativa, Laboratorio de ciencias, Robótica">
+      <p class="text-[10px] text-slate-500 mt-0.5">Se guardan como "Optativa: Redacción creativa" para que siempre se identifiquen como optativas.</p></div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
       <div><label class="lbl">¿Es docente tutor?</label><select id="md-tut" class="inp"><option value="NO">NO</option><option value="SI">SÍ</option></select></div>
       <div><label class="lbl">Curso de tutoría</label><select id="md-tgra" class="inp"></select></div>
       <div><label class="lbl">Paralelo de tutoría</label><select id="md-tpar" class="inp"></select></div>
+      <div><label class="lbl">Jornada de la tutoría</label><select id="md-tjor" class="inp"><option value="">—</option><option>Matutina</option><option>Vespertina</option></select>
+        <p class="text-[10px] text-slate-500">Obligatoria si el docente trabaja en ambas jornadas.</p></div>
     </div>
     <div class="flex gap-2"><button onclick="cerrarModal('m-doc')" class="btn bg-slate-100 w-1/2">Cancelar</button>
       <button onclick="guardarDocente()" class="btn btn-primary w-1/2">Guardar en Drive</button></div>
@@ -455,7 +466,7 @@ function jornadasDir(conAmbas) {
 // Si se publica FUERA de Google (GitHub Pages, Netlify…) usa la URL /exec de abajo:
 // así funciona con cualquier cuenta de Google abierta en el navegador, o sin ninguna.
 // ============================================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxnmY6LLVivYlyRKQnnmxeFCON6v_o_wQPw1HuugX3mgU7G57ZkxUNc2Wkzxd--Q_7WdQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpWRvnv0KOxUUnaIrg1k5bPCbC3VkhqFcFXl0IQa2mF_2uCKfSzxMCG2_xVxls2NS16w/exec';
 const EN_APPS_SCRIPT = typeof google !== 'undefined' && google.script && google.script.run;
 function errorApi(m, ko) {
   m = String(m || 'Error de conexión').replace(/^Error:\s*/, '');
@@ -784,7 +795,7 @@ async function cargarDocentes() {
     $('doc-body').innerHTML = S.docs.map(d => `<tr class="${d.estado === 'INACTIVO' ? 'opacity-50' : ''}">
       <td class="font-mono">${esc(d.id)}</td><td class="font-bold">${esc(d.nombre)}</td><td class="font-mono text-sky-800">${esc(d.usuario)}</td>
       <td>${esc(d.jornada)}</td><td>${esc(d.carga)} h</td><td>${esc(d.grados.join(', '))}<br><span class="text-slate-500">Paralelos: ${esc(d.paralelos.join(', '))}</span></td>
-      <td>${esc(d.asignaturas.join(', '))}</td><td>${d.esTutor ? `<span class="px-2 rounded bg-purple-100 text-purple-900 font-bold">${esc(d.tutorGrado)} - ${esc(d.tutorParalelo)}</span>` : 'NO'}</td>
+      <td>${esc(d.asignaturas.join(', '))}</td><td>${d.esTutor ? `<span class="px-2 rounded bg-purple-100 text-purple-900 font-bold">${esc(d.tutorGrado)} - ${esc(d.tutorParalelo)}${d.tutorJornada ? ' · ' + esc(d.tutorJornada) : ''}</span>` : 'NO'}</td>
       <td>${esc(d.optativas)}</td><td>${esc(d.estado)}</td>
       <td class="whitespace-nowrap"><button onclick="abrirDocente('${esc(d.id)}')" class="btn btn-sec py-1">✏️</button>
       <button onclick="resetClaveDoc('${esc(d.id)}')" title="Generar nueva contraseña" class="btn btn-sec py-1">🔑</button></td></tr>`).join('')
@@ -801,19 +812,24 @@ function abrirDocente(id) {
   $('md-gra').innerHTML = gradosList().map(g => `<label class="flex gap-1 items-center"><input type="checkbox" value="${esc(g)}" ${d.grados.includes(g) ? 'checked' : ''}>${esc(g)}</label>`).join('');
   $('md-par').innerHTML = S.cat.paralelos.map(p => `<label class="flex gap-1 items-center"><input type="checkbox" value="${p}" ${d.paralelos.includes(p) ? 'checked' : ''}>${p}</label>`).join('');
   $('md-asig').innerHTML = S.cat.materias.map(m => `<label class="flex gap-1 items-center"><input type="checkbox" value="${esc(m)}" ${d.asignaturas.includes(m) ? 'checked' : ''}>${esc(m)}</label>`).join('');
-  $('md-otras').value = d.asignaturas.filter(a => !S.cat.materias.includes(a)).join(', ');
+  $('md-otras').value = d.asignaturas.filter(a => !S.cat.materias.includes(a) && !/^optativa:/i.test(a)).join(', ');
+  $('md-optn').value = d.asignaturas.filter(a => /^optativa:/i.test(a)).map(a => a.replace(/^optativa:\s*/i, '')).join(', ');
   $('md-tut').value = d.esTutor ? 'SI' : 'NO';
   $('md-tgra').innerHTML = opts(gradosList(), d.tutorGrado, '—');
   $('md-tpar').innerHTML = opts(S.cat.paralelos, d.tutorParalelo, '—');
+  $('md-tjor').value = d.tutorJornada || (d.jornada !== 'Ambas' ? d.jornada : '');
+  const ajTut = () => { if ($('md-jor').value !== 'Ambas') $('md-tjor').value = $('md-jor').value; $('md-tjor').disabled = $('md-jor').value !== 'Ambas'; };
+  $('md-jor').onchange = ajTut; ajTut();
   abrirModal('m-doc');
 }
 const marcados = id => [...$(id).querySelectorAll('input:checked')].map(i => i.value);
 async function guardarDocente() {
   const asig = marcados('md-asig').concat($('md-otras').value.split(',').map(s => s.trim()).filter(Boolean));
+  const optn = $('md-optn').value.split(',').map(s => s.trim()).filter(Boolean);
   const o = {
     id: $('md-id').value, titulo: $('md-tit2').value, nombres: $('md-nom').value, apellidos: $('md-ape').value, correo: $('md-cor').value, cedula: $('md-ced').value,
     jornada: $('md-jor').value, carga: $('md-car').value, grados: marcados('md-gra'), paralelos: marcados('md-par'), asignaturas: asig,
-    esTutor: $('md-tut').value, tutorGrado: $('md-tgra').value, tutorParalelo: $('md-tpar').value, optativas: $('md-opt').value, estado: $('md-est').value
+    esTutor: $('md-tut').value, tutorGrado: $('md-tgra').value, tutorParalelo: $('md-tpar').value, tutorJornada: $('md-tjor').value, optativas: $('md-opt').value, optativasNombres: optn, estado: $('md-est').value
   };
   await run(async () => {
     const r = await apiT('apiGuardarDocente', o);
@@ -842,7 +858,7 @@ function renderPeriodos() {
   $('ds-per').innerHTML = opts(S.cat.periodos.filter(p => p.tipo !== 'ANUAL').map(p => ({ v: p.id, t: `${p.nombre} · ${p.jornada} (${p.estado})` })));
   $('ds-gra').innerHTML = opts([{ v: 'TODOS', t: 'Todos sus cursos' }].concat(gradosList()));
   $('ds-par').innerHTML = opts([{ v: 'TODOS', t: 'Todos' }].concat(S.cat.paralelos));
-  $('ds-asig').innerHTML = opts([{ v: 'TODAS', t: 'Todas sus asignaturas' }].concat(S.cat.materias.filter(m => m !== 'Docente de Aula'), ['Educación Cultural y Artística', 'Destrezas (Docente de Aula)', 'Conducta']).filter((x, i, a) => a.indexOf(x) === i));
+  $('ds-asig').innerHTML = opts([{ v: 'TODAS', t: 'Todas sus asignaturas' }].concat(S.cat.materias.filter(m => m !== 'Docente de Aula'), ['Educación Cultural y Artística', 'Destrezas (Docente de Aula)', 'Conducta', 'Cívica y Acompañamiento Integral en el Aula', 'Orientación Vocacional y Profesional']).filter((x, i, a) => a.indexOf(x) === i));
   const d = new Date(); d.setDate(d.getDate() + 3); $('ds-hasta').value = d.toISOString().slice(0, 10);
 }
 function pintarPeriodos() {
@@ -893,7 +909,8 @@ async function autorizarDesbloqueo() {
 async function cargarInstitucion() {
   await run(async () => {
     const r = await apiT('apiObtenerConfig');
-    $('cfg-body').innerHTML = r.config.map(c => `<div><label class="lbl">${esc(c.parametro.replace(/_/g, ' '))} <span class="font-normal text-slate-500">· ${esc(c.descripcion)}</span></label>
+    pintarHabilidades();
+    $('cfg-body').innerHTML = r.config.filter(c => c.parametro !== 'Habilidades_AIA').map(c => `<div><label class="lbl">${esc(c.parametro.replace(/_/g, ' '))} <span class="font-normal text-slate-500">· ${esc(c.descripcion)}</span></label>
       <input class="inp cfg" data-p="${esc(c.parametro)}" value="${esc(c.valor)}"></div>`).join('');
     $('dir-body').innerHTML = r.directivos.map(d => `<div class="border rounded-xl p-2 space-y-1">
       <div class="font-bold">${esc(d.cargo)} <span class="font-mono text-sky-800">(${esc(d.usuario)})</span></div>
@@ -907,6 +924,22 @@ async function cargarInstitucion() {
       ${r.escala.map(e => `<tr><td>${esc(e.tipo)}</td><td>${f2(e.desde)}</td><td>${f2(e.hasta)}</td><td class="font-bold">${esc(e.codigo)}</td><td>${esc(e.desc)}</td></tr>`).join('')}</tbody></table>`;
   });
 }
+function pintarHabilidades() {
+  const H = S.cat.habAIA, ob = S.cat.habObligatorias, el = S.cat.habElegidas || [];
+  const libres = g => H[g].filter(x => !ob.includes(x));
+  const pick = (g, n) => { const ya = el.filter(x => H[g].includes(x)); return Array.from({ length: n }, (_, k) => ya[k] || ''); };
+  const sel = (g, v, k) => `<select class="inp hab" data-g="${g}">${opts(libres(g), v, '— Elija (' + g.toLowerCase().replace(/s$/, '') + ') —')}</select>`;
+  $('hab-body').innerHTML = `<div class="font-bold text-slate-700">Obligatorias: <span class="font-normal">${ob.map(esc).join(' · ')}</span></div>
+    <div><span class="lbl">1 cognitiva</span>${pick('COGNITIVAS', 1).map((v, k) => sel('COGNITIVAS', v, k)).join('')}</div>
+    <div><span class="lbl">3 sociales</span><div class="grid grid-cols-1 sm:grid-cols-3 gap-1">${pick('SOCIALES', 3).map((v, k) => sel('SOCIALES', v, k)).join('')}</div></div>
+    <div><span class="lbl">1 emocional</span>${pick('EMOCIONALES', 1).map((v, k) => sel('EMOCIONALES', v, k)).join('')}</div>`;
+}
+async function guardarHabilidades() {
+  const v = [...document.querySelectorAll('#hab-body .hab')].map(x => x.value);
+  if (v.some(x => !x) || new Set(v).size !== v.length) return toast('Elija 5 habilidades distintas: 1 cognitiva, 3 sociales y 1 emocional.', 'err');
+  await run(async () => { const r = await apiT('apiGuardarConfig', [{ parametro: 'Habilidades_AIA', valor: v.join(', ') }]); toast(r.mensaje, 'ok'); await refrescarCatalogo(); pintarHabilidades(); });
+}
+
 async function guardarConfig() {
   const pares = [...document.querySelectorAll('.cfg')].map(i => ({ parametro: i.dataset.p, valor: i.value }));
   await run(async () => { const r = await apiT('apiGuardarConfig', pares); toast(r.mensaje, 'ok'); await refrescarCatalogo(); });
@@ -976,23 +1009,35 @@ function plCambio(cargar) {
   const pf = S.cat.perfil, g = $('pl-gra').value, p = $('pl-par').value;
   const asigs = pf.asignaturasPorGrado[g] || [], prev = $('pl-asig').value;
   $('pl-asig').innerHTML = opts(asigs, asigs.includes(prev) ? prev : asigs[0]);
+  $('pl-asig').onchange = () => plCambio(true);
   $('pl-asig-box').classList.toggle('hidden', esIni(g));
   cargarCortes('pl-corte', $('pl-jor').value, $('pl-trim').value, $('pl-corte').value);
-  const tutor = pf.esTutor && pf.tutorGrado === g && pf.tutorParalelo === p && pf.jornadas.includes($('pl-jor').value);
+  const tutor = pf.esTutor && pf.tutorGrado === g && pf.tutorParalelo === p && pf.jornadas.includes($('pl-jor').value) && (!pf.tutorJornada || pf.tutorJornada === $('pl-jor').value);
   S.pl.tutor = tutor;
   $('pl-tutor').classList.toggle('hidden', !tutor);
-  const subs = esIni(g) ? [['ini', '🌱 Destrezas por corte']] : [['form', '📝 Insumos formativos (corte)']];
-  if (!esIni(g) && !esElementalSinSum(g)) subs.push(['sum', '🎯 Evaluación sumativa y mejora (trimestre)']);
-  if (!esIni(g)) subs.splice(1, 0, ['ref', '🩹 Refuerzo pedagógico (alertas)']);
-  if (tutor) subs.push(['cond', '⭐ Conducta (tutor)']);
+  const asig = $('pl-asig').value, tipoA = tipoAsig(asig);
+  let subs;
+  if (esIni(g)) subs = [['ini', '🌱 Destrezas por corte']];
+  else if (tipoA === 'LECTURA') subs = [['lec', '📖 Animación a la lectura (cualitativa)']];
+  else if (tipoA === 'OPTATIVA') subs = [['opt', /PPE|participaci[oó]n estudiantil/i.test(asig) ? '🙋 Participación Estudiantil (registro interno, no va a la boleta)' : '🎨 Optativa – evaluación cualitativa (no se promedia)']];
+  else {
+    subs = [['form', '📝 Insumos formativos (corte)'], ['ref', '🩹 Refuerzo pedagógico (alertas)']];
+    if (!esElementalSinSum(g)) subs.push(['sum', '🎯 Evaluación sumativa y mejora (trimestre)']);
+  }
+  // Periodos pedagógicos que registra el docente tutor (no dependen de la asignatura elegida)
+  if (tutor) subs.push(['aia', '⭐ Acompañamiento Integral y comportamiento (tutor)']);
+  if (tutor && [8, 9, 10].includes(ordenG(g))) subs.push(['ovp', '🧭 Orientación Vocacional y Profesional (tutor)']);
   if (!subs.find(s => s[0] === S.sub)) S.sub = subs[0][0];
   $('pl-subs').innerHTML = subs.map(s => `<button onclick="S.sub='${s[0]}';plCambio(true)" class="btn ${S.sub === s[0] ? 'btn-primary' : 'btn-sec'}">${s[1]}</button>`).join('');
   // Las boletas (informes de aprendizaje por estudiante) las emite Rectorado (Art. 4 lit. e del Acuerdo 82-A).
   const inf = [];
-  if (!esIni(g)) inf.push(['alertas', '⚠️ Alertas de bajo desempeño (corte)', 'btn-warn'], ['mensual', '📄 Informe mensual de insumos (corte)', 'btn-primary'],
+  if (tipoA) inf.push(['cual:' + tipoA, '📘 Informe trimestral cualitativo', 'btn-primary']);
+  else if (!esIni(g)) inf.push(['alertas', '⚠️ Alertas de bajo desempeño (corte)', 'btn-warn'], ['mensual', '📄 Informe mensual de insumos (corte)', 'btn-primary'],
     ['obs:TRIMESTRAL', '📘 Informe trimestral (con observaciones)', 'btn-primary'], ['obs:ANUAL', '📊 Informe anual (con observaciones)', 'btn-primary']);
-  else inf.push(['obs:TRIMESTRAL', '🌱 Informe trimestral de destrezas (con observaciones)', 'btn-ok']);
-  $('pl-informes').innerHTML = inf.map(i => `<button onclick="${i[0].startsWith('obs:') ? `abrirObservaciones('${i[0].slice(4)}')` : `informeDocente('${i[0]}')`}" class="btn ${i[2]}">${i[1]}</button>`).join('')
+  else if (esIni(g)) inf.push(['obs:TRIMESTRAL', '🌱 Informe trimestral de destrezas (con observaciones)', 'btn-ok']);
+  if (tutor) inf.push(['cual:AIA', '⭐ Informe de Acompañamiento Integral', 'btn-ok']);
+  if (tutor && [8, 9, 10].includes(ordenG(g))) inf.push(['cual:OVP', '🧭 Informe de Orientación Vocacional', 'btn-ok']);
+  $('pl-informes').innerHTML = inf.map(i => `<button onclick="${i[0].startsWith('obs:') ? `abrirObservaciones('${i[0].slice(4)}')` : (i[0].startsWith('cual:') ? `informeCual('${i[0].slice(5)}')` : `informeDocente('${i[0]}')`)}" class="btn ${i[2]}">${i[1]}</button>`).join('')
     + '<p class="w-full text-[11px] text-slate-500">Las boletas de calificaciones las emite Rectorado.</p>';
   if (cargar) plCargar();
 }
@@ -1012,10 +1057,88 @@ async function plCargar() {
     else if (S.sub === 'ini') renderInicial(await apiT('apiCargarInicial', c));
     else if (S.sub === 'cond') renderConducta(await apiT('apiCargarConducta', c));
     else if (S.sub === 'ref') renderRefuerzo(await apiT('apiCargarRefuerzo', c));
+    else if (TIPO_SUB[S.sub]) renderCualitativa(await apiT('apiCargarCualitativa', c, TIPO_SUB[S.sub]));
     resumenGrab();
   });
 }
 function sinEstudiantes() { $('pl-area').innerHTML = '<p class="text-center text-slate-400 py-6 text-xs">No hay estudiantes matriculados en este curso y paralelo.</p>'; }
+
+// ---- Periodos pedagógicos y asignaturas cualitativas (Art. 9: no se promedian) ----
+const TIPO_SUB = { lec: 'LECTURA', opt: 'OPTATIVA', aia: 'AIA', ovp: 'OVP' };
+const esCualArt9 = a => /optativ|PPE|participaci[oó]n estudiantil|adicional|acompa[nñ]amiento|orientaci[oó]n vocacional|animaci[oó]n a la lectura/i.test(a || '');
+const tipoAsig = a => !esCualArt9(a) ? '' : (/animaci[oó]n a la lectura/i.test(a) ? 'LECTURA' : 'OPTATIVA');
+const SFON_PTS = { S: 4, F: 3, O: 2, N: 1 };
+function califCualC(tipo, vals, manual) {
+  const v = vals.filter(x => SFON_PTS[x]);
+  if (tipo === 'OPTATIVA') return { suma: '', calif: manual || '' };
+  if (!v.length) return { suma: '', calif: '' };
+  if (tipo === 'OVP') {
+    const p = { S: 3, F: 2, O: 1 }, sum = v.reduce((a, x) => a + p[x], 0), avg = sum / v.length;
+    return { suma: sum, calif: avg >= 2.5 ? 'A+' : avg >= 1.5 ? 'A-' : 'B+' };
+  }
+  const suma = v.reduce((a, x) => a + SFON_PTS[x], 0);
+  if (tipo === 'LECTURA') {
+    const n = suma * 10 / (4 * v.length), e = S.cat.escala.filter(x => x.tipo === 'ELEMENTAL').find(x => n >= x.desde - 1e-9 && n <= x.hasta + 1e-9);
+    return { suma, calif: e ? e.codigo : '' };
+  }
+  const O = v.includes('O'), N = v.includes('N');
+  const calif = (!O && !N) ? (suma >= 35 ? 'A+' : suma >= 33 ? 'A-' : suma >= 30 ? 'B+' : 'B-') : (!N ? 'C+' : (suma >= 18 ? 'C-' : suma >= 15 ? 'D+' : suma >= 13 ? 'D-' : suma >= 11 ? 'E+' : 'E-'));
+  return { suma, calif };
+}
+function renderCualitativa(d) {
+  S.pl.data = d; banner(d);
+  if (!d.estudiantes.length) return sinEstudiantes();
+  const ed = d.permiso.editable, dis = ed ? '' : 'disabled', ind = d.indicadores, tipo = d.tipo;
+  const escala = tipo === 'OVP' ? ['S', 'F', 'O'] : ['S', 'F', 'O', 'N'];
+  const info = {
+    AIA: `<b>Cívica y Acompañamiento Integral en el Aula</b> (lineamientos 2023 e Instructivo de Evaluación 2025). Registre el <b>consenso de la Junta de Curso</b> de las 9 habilidades: S = Siempre, F = Frecuentemente, O = Ocasionalmente, N = Nunca. La calificación A+ … E- sale de la tabla oficial (sumatoria 9 a 36). Esta evaluación es también la <b>descripción cualitativa del comportamiento</b> que va en la boleta; escriba la descripción en "Observación".`,
+    OVP: `<b>Orientación Vocacional y Profesional – eje: ${esc(d.eje)}</b>. Evalúe los 5 indicadores: S = Siempre (A+), F = Frecuentemente (A-), O = Ocasionalmente (B+). El resultado final (A+, A- o B+) se calcula con el promedio de los indicadores y va a la boleta.`,
+    LECTURA: `<b>Animación a la lectura</b>: evalúe las 6 líneas del lineamiento (S/F/O/N). El sistema sugiere la valoración A+ … E-; no se promedia ni es requisito de promoción (Art. 9).`,
+    OPTATIVA: /PPE|participaci[oó]n estudiantil/i.test(d.asignatura) ? `<b>Participación Estudiantil</b>: registro interno de la valoración del trimestre. <b>No forma parte de la boleta de calificaciones</b> ni del promedio.` : `<b>${esc(d.asignatura)}</b> – <b>ASIGNATURA OPTATIVA</b> de evaluación <b>cualitativa</b>. Elija la valoración A+ … E- del trimestre; no entra al promedio del mes, del trimestre ni del año, y no es requisito de promoción (Art. 9).`
+  }[tipo];
+  let th = '<tr><th>N°</th><th class="text-left min-w-[160px]">Estudiante</th>';
+  ind.forEach((t, k) => { th += `<th title="${esc(t)}" class="max-w-[90px]"><span class="block text-[9px] leading-tight font-normal">${esc(t)}</span>${k + 1}</th>`; });
+  th += `${tipo === 'AIA' || tipo === 'OVP' || tipo === 'LECTURA' ? '<th>Suma</th>' : ''}<th>${tipo === 'AIA' ? 'Comportamiento (escala de Acompañamiento Integral)' : 'Valoración'}</th><th class="min-w-[200px]">${tipo === 'AIA' ? 'Descripción del comportamiento / observación' : 'Observación'}</th><th>Drive</th></tr>`;
+  const rows = d.estudiantes.map((e, i) => {
+    let c = '';
+    ind.forEach((_, k) => { c += `<td><select class="border rounded p-1 text-[11px] font-bold" data-i="${i}" data-k="${k}" ${dis}>${opts(escala.map(x => ({ v: x, t: x })), e.valores[k], '—')}</select></td>`; });
+    const sel = tipo === 'OPTATIVA' ? `<select id="qc-${i}" class="border rounded p-1 text-[11px] font-bold" ${dis}>${opts(LETRAS.slice().reverse(), e.calif, '—')}</select>`
+      : tipo === 'AIA' ? `<select id="qc-${i}" data-manual="${e.calif ? 1 : 0}" class="border rounded p-1 text-[11px] font-bold max-w-[260px]" ${dis} onchange="this.dataset.manual=this.value?1:0">${opts(LETRAS.slice().reverse().map(l => ({ v: l, t: l + ' – ' + (S.cat.descAIA[l] || '') })), e.calif, '— Comportamiento —')}</select><div id="qcs-${i}" class="text-[9px] text-slate-500 font-normal"></div>` : '';
+    return `<tr data-row="${i}"><td>${i + 1}</td><td class="font-semibold">${esc(e.nombres)}${e.legado ? `<br><span class="text-[9px] text-slate-400">Conducta anterior: ${esc(e.legado)}</span>` : ''}</td>${c}
+      ${tipo === 'OPTATIVA' ? '' : `<td id="qs-${i}" class="font-bold"></td>`}<td id="qv-${i}" class="font-black text-emerald-800 text-left">${sel}</td>
+      <td><input id="qo-${i}" class="inp" value="${esc(e.obs)}" ${dis}></td>${celdaGrab(i, e.fecha)}</tr>`;
+  }).join('');
+  $('pl-area').innerHTML = `<div class="text-[11px] text-slate-600 mb-2 bg-violet-50 border border-violet-200 rounded-xl p-2">${info}</div>
+    <div class="overflow-x-auto border rounded-2xl"><table class="w-full planilla"><thead class="bg-violet-50">${th}</thead><tbody>${rows}</tbody></table></div>`;
+  $('pl-area').oninput = $('pl-area').onchange = ev => { if (ev.target.dataset && ev.target.dataset.i !== undefined) recalcCual(Number(ev.target.dataset.i)); };
+  if (tipo !== 'OPTATIVA') d.estudiantes.forEach((e, i) => recalcCual(i));
+  $('pl-acciones').innerHTML = ed ? '<button onclick="guardarCualitativa()" class="btn btn-primary">💾 Guardar evaluación cualitativa en Drive</button>' : '';
+}
+function recalcCual(i) {
+  const d = S.pl.data; if (d.tipo === 'OPTATIVA') return;
+  const v = [...$('pl-area').querySelectorAll(`select[data-i="${i}"]`)].map(x => x.value), c = califCualC(d.tipo, v);
+  $('qs-' + i).textContent = c.suma === '' ? '' : c.suma;
+  if (d.tipo === 'AIA') {
+    // Comportamiento: se propone la calificación calculada con las habilidades; el tutor puede elegir otra de la lista.
+    const s = $('qc-' + i), n = v.filter(Boolean).length;
+    if (s.dataset.manual !== '1' && c.calif) s.value = c.calif;
+    $('qcs-' + i).textContent = c.calif ? 'Según habilidades: ' + c.calif + (n < d.indicadores.length ? ' (incompleto)' : '') : '';
+    return;
+  }
+  $('qv-' + i).textContent = c.calif;
+}
+async function guardarCualitativa() {
+  const d = S.pl.data;
+  const filas = d.estudiantes.map((e, i) => ({ id: e.id, valores: [...$('pl-area').querySelectorAll(`select[data-i="${i}"]`)].map(x => x.value),
+    calif: (d.tipo === 'OPTATIVA' || d.tipo === 'AIA') ? $('qc-' + i).value : '', obs: $('qo-' + i).value }));
+  let ok = false;
+  await run(async () => { const r = await apiT('apiGuardarCualitativa', S.pl.ctx, d.tipo, filas); toast(r.mensaje, 'ok'); ok = true; });
+  if (ok) plCargar();
+}
+async function informeCual(tipo) {
+  const c = Object.assign(plCtx(), { tipoCual: tipo });
+  await run(async () => mostrarReporte(await apiT('apiReporte', 'cualitativo', c)));
+}
 
 // ---- Indicador de grabación en Drive (en todas las planillas) ----
 function tagGrab(fecha) {
@@ -1398,25 +1521,40 @@ function mostrarReporte(r) {
       tabla(['N°', 'Estudiante'].concat(r.cortes, ['Observación']), filas) +
       (r.obsGeneral ? `<table><tr><th style="width:22%">Observación general</th><td>${esc(r.obsGeneral)}</td></tr></table>` : '') +
       firmas([[r.tutor, 'Docente', 'REALIZADO'], vice(r)]) + norma(r);
+  } else if (r.tipo === 'cualitativo') {
+    orient = 'landscape';
+    const nom = { AIA: 'Cívica y Acompañamiento Integral en el Aula', OVP: 'Orientación Vocacional y Profesional', LECTURA: 'Animación a la lectura', OPTATIVA: r.asignatura }[r.tipoCual];
+    const escTxt = r.tipoCual === 'OPTATIVA' ? 'Escala A+ … E- (Art. 7 y 9)' : (r.tipoCual === 'OVP' ? 'S Siempre (A+) · F Frecuentemente (A-) · O Ocasionalmente (B+)' : 'S Siempre · F Frecuentemente · O Ocasionalmente · N Nunca');
+    const filas = r.filas.map((x, n) => `<tr><td class="c">${n + 1}</td><td>${esc(x.nombres)}</td>${x.valores.map(v => `<td class="c">${esc(v || '—')}</td>`).join('')}${r.tipoCual === 'OPTATIVA' ? '' : `<td class="c">${esc(x.suma)}</td>`}<td class="c b">${esc(x.calif || '—')}</td><td>${esc(x.desc)}</td><td>${esc(x.obs)}</td></tr>`);
+    h = encabezado(r, `${nom} – ${F.trimestre}° trimestre`, 'Evaluación cualitativa: no se promedia y no es requisito de promoción (Art. 9 del Acuerdo 82-A)') +
+      ficha([['Jornada', F.jornada], ['Curso', curso], ['Docente', r.docente], r.eje ? ['Eje', r.eje] : null, ['Escala', escTxt]]) +
+      tabla(['N°', 'Estudiante'].concat(r.indicadores.map((t, k) => `${k + 1}. ${esc(t)}`), r.tipoCual === 'OPTATIVA' ? [] : ['Suma'], ['Valoración', 'Descripción', 'Observación']), filas) +
+      (r.obsGeneral ? `<table><tr><th style="width:22%">Observación general</th><td>${esc(r.obsGeneral)}</td></tr></table>` : '') +
+      firmas([[r.docente, r.tipoCual === 'AIA' || r.tipoCual === 'OVP' ? 'Docente tutor/a' : 'Docente', 'REALIZADO'], vice(r)]) + norma(r);
   } else if (r.tipo === 'boleta') {
     h = r.boletas.map(b => {
-      const filas = b.materias.map(m => r.cualitativa
+      const optas = b.materias.filter(m => m.cualitativa && m.grupo === 'OPTATIVA').map(m => ({ nombre: m.asignatura.replace(/^optativa:\s*/i, ''), txt: m.equiv }));
+      const cuals = b.materias.filter(m => m.cualitativa && m.grupo !== 'OPTATIVA').map(m => ({ nombre: m.asignatura, txt: m.equiv })).concat((b.periodos || []).map(p => ({ nombre: p.nombre, txt: p.calif + ' – ' + p.desc })));
+      const filas = b.materias.filter(m => !m.cualitativa).map(m => r.cualitativa
         ? `<tr><td>${esc(m.asignatura)}</td><td class="b">${esc(m.equiv || 'Sin registro')}</td></tr>`
-        : m.cualitativa ? `<tr><td>${esc(m.asignatura)}</td><td colspan="6"><b>${esc(m.equiv || 'Sin registro')}</b> <small>(evaluación cualitativa, Art. 9)</small></td></tr>`
         : `<tr><td>${esc(m.asignatura)}</td><td class="c">${f2(m.promF)}</td><td class="c">${f2(m.pF)}</td><td class="c">${f2(m.sumEf)}</td><td class="c">${f2(m.pS)}</td><td class="c b">${f2(m.nota)}</td><td>${esc(m.equiv || '')}</td></tr>`);
       if (!r.cualitativa) filas.push(`<tr><td class="b" colspan="5">PROMEDIO GENERAL</td><td class="c b">${f2(b.promedio)}</td><td>${esc(equivC(b.promedio, 'CUANTITATIVA'))}</td></tr>`);
       const cond = CONDUCTA.find(c => c.v === b.conducta);
       return `<div class="pagina">${encabezado(r, `Boleta de calificaciones – ${F.trimestre}° trimestre`, r.cualitativa ? 'Informe cualitativo (hasta 4° año de EGB)' : 'Calificación cuantitativa y su correspondencia cualitativa')}
         ${ficha([['Estudiante', b.nombres], ['Cédula', b.cedula], ['Curso', curso], ['Jornada', F.jornada], ['Docente tutor/a', r.tutor]])}
         ${tabla(r.cualitativa ? ['Asignatura', 'Valoración cualitativa'] : ['Asignatura', 'Prom. formativo', `Formativo ${r.params.pf}%`, 'Sumativa', `Sumativo ${r.params.ps}%`, 'Nota trimestral', 'Equivalencia cualitativa'], filas)}
-        <table><tr><th style="width:30%">Evaluación comportamental</th><td>${esc(cond ? cond.t : 'Sin registro')}${b.conductaObs ? ' · ' + esc(b.conductaObs) : ''}</td></tr>
+        ${optas.length ? tabla(['Asignaturas optativas (cualitativas – no se promedian ni son requisito de promoción, Art. 9)', 'Valoración cualitativa'], optas.map(c => `<tr><td>${esc(c.nombre)}</td><td class="b">${esc(c.txt || 'Sin registro')}</td></tr>`)) : ''}
+        ${cuals.length ? tabla(['Periodos pedagógicos (cualitativos – no se promedian, Art. 9)', 'Valoración cualitativa'], cuals.map(c => `<tr><td>${esc(c.nombre)}</td><td class="b">${esc(c.txt || 'Sin registro')}</td></tr>`)) : ''}
+        <table><tr><th style="width:30%">Descripción cualitativa del comportamiento</th><td>${b.comportamiento ? `<b>${esc(b.comportamiento.calif)}</b> – ${esc(b.comportamiento.desc)}${b.comportamiento.obs ? '<br>' + esc(b.comportamiento.obs) : ''}` : esc(cond ? cond.t : 'Sin registro') + (b.conductaObs ? ' · ' + esc(b.conductaObs) : '')}</td></tr>
         ${b.recomendaciones && b.recomendaciones.length ? `<tr><th>Recomendaciones de los docentes</th><td>${b.recomendaciones.map(esc).join('<br>')}</td></tr>` : ''}</table>
         ${firmas([[r.inst.rectora, 'Rectora'], [r.tutor, 'Docente tutor/a']])}${norma(r)}</div>`;
     }).join('') || '<p>No hay estudiantes.</p>';
   } else if (r.tipo === 'anual') {
     orient = 'landscape';
     h = r.boletas.map(b => {
-      const filas = b.materias.map(m => r.cualitativa
+      const filas = b.materias.map(m => m.cualitativa
+        ? `<tr><td>${/^optativa:/i.test(m.asignatura) ? 'Optativa: <b>' + esc(m.asignatura.replace(/^optativa:\s*/i, '')) + '</b>' : esc(m.asignatura)} <small>(cualitativa)</small></td>${m.letras.map(x => `<td class="c">${esc(x || '—')}</td>`).join('')}${r.cualitativa ? '<td>No se promedia (Art. 9)</td>' : '<td class="c">—</td><td>No se promedia</td><td class="c">—</td><td>' + esc(m.condicion) + '</td>'}</tr>`
+        : r.cualitativa
         ? `<tr><td>${esc(m.asignatura)}</td>${m.t.map(x => `<td class="c">${esc(x === '' ? '—' : equivC(x, 'ELEMENTAL').split(' – ')[0])}</td>`).join('')}<td class="b">${esc(m.equiv || 'Pendiente')}</td></tr>`
         : `<tr class="${m.alcanza === 'NO' && !m.cualitativa ? 'alerta' : ''}"><td>${esc(m.asignatura)}</td>${m.t.map(x => `<td class="c">${f2(x) || '—'}</td>`).join('')}<td class="c b">${f2(m.prom)}</td><td>${esc(m.equiv)}</td><td class="c">${esc(m.alcanza)}</td><td>${esc(m.condicion || '')}</td></tr>`);
       return `<div class="pagina">${encabezado(r, 'Reporte anual de calificaciones', '1°, 2° y 3° trimestre')}
