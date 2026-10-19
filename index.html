@@ -466,7 +466,7 @@ function jornadasDir(conAmbas) {
 // Si se publica FUERA de Google (GitHub Pages, Netlify…) usa la URL /exec de abajo:
 // así funciona con cualquier cuenta de Google abierta en el navegador, o sin ninguna.
 // ============================================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxezmo7XDWIUY0pymn0YrhMvTom1DbPsESIHqxPVXXp8vbhHv0wWA6JjeddtbqvAkBG/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzopTQG-QeXWja36_JtwCLkVrYXltjIKLt1XfJeoU3fqljlmiU_QYeEnghgx0t4b7ZnAg/exec';
 const EN_APPS_SCRIPT = typeof google !== 'undefined' && google.script && google.script.run;
 function errorApi(m, ko) {
   m = String(m || 'Error de conexión').replace(/^Error:\s*/, '');
@@ -1019,6 +1019,7 @@ function plCambio(cargar) {
   let subs;
   if (esIni(g)) subs = [['ini', '🌱 Destrezas por corte']];
   else if (tipoA === 'LECTURA') subs = [['lec', '📖 Animación a la lectura (cualitativa)']];
+  else if (tipoA === 'OVP') subs = [['ovp', '🧭 Orientación Vocacional y Profesional (cualitativa)']];
   else if (tipoA === 'OPTATIVA') subs = [['opt', /PPE|participaci[oó]n estudiantil/i.test(asig) ? '🙋 Participación Estudiantil (registro interno, no va a la boleta)' : '🎨 Optativa – evaluación cualitativa (no se promedia)']];
   else {
     subs = [['form', '📝 Insumos formativos (corte)'], ['ref', '🩹 Refuerzo pedagógico (alertas)']];
@@ -1026,7 +1027,8 @@ function plCambio(cargar) {
   }
   // Periodos pedagógicos que registra el docente tutor (no dependen de la asignatura elegida)
   if (tutor) subs.push(['aia', '⭐ Acompañamiento Integral y comportamiento (tutor)']);
-  if (tutor && [8, 9, 10].includes(ordenG(g))) subs.push(['ovp', '🧭 Orientación Vocacional y Profesional (tutor)']);
+  // OVP: la registra quien la tiene en el distributivo; el tutor solo si nadie la tiene asignada en su curso
+  if (tutor && pf.ovpDelTutor && tipoA !== 'OVP' && [8, 9, 10].includes(ordenG(g))) subs.push(['ovp', '🧭 Orientación Vocacional y Profesional (sin docente asignado)']);
   if (!subs.find(s => s[0] === S.sub)) S.sub = subs[0][0];
   $('pl-subs').innerHTML = subs.map(s => `<button onclick="S.sub='${s[0]}';plCambio(true)" class="btn ${S.sub === s[0] ? 'btn-primary' : 'btn-sec'}">${s[1]}</button>`).join('');
   // Las boletas (informes de aprendizaje por estudiante) las emite Rectorado (Art. 4 lit. e del Acuerdo 82-A).
@@ -1036,7 +1038,7 @@ function plCambio(cargar) {
     ['obs:TRIMESTRAL', '📘 Informe trimestral (con observaciones)', 'btn-primary'], ['obs:ANUAL', '📊 Informe anual (con observaciones)', 'btn-primary']);
   else if (esIni(g)) inf.push(['obs:TRIMESTRAL', '🌱 Informe trimestral de destrezas (con observaciones)', 'btn-ok']);
   if (tutor) inf.push(['cual:AIA', '⭐ Informe de Acompañamiento Integral', 'btn-ok']);
-  if (tutor && [8, 9, 10].includes(ordenG(g))) inf.push(['cual:OVP', '🧭 Informe de Orientación Vocacional', 'btn-ok']);
+  if (tutor && pf.ovpDelTutor && tipoA !== 'OVP' && [8, 9, 10].includes(ordenG(g))) inf.push(['cual:OVP', '🧭 Informe de Orientación Vocacional', 'btn-ok']);
   $('pl-informes').innerHTML = inf.map(i => `<button onclick="${i[0].startsWith('obs:') ? `abrirObservaciones('${i[0].slice(4)}')` : (i[0].startsWith('cual:') ? `informeCual('${i[0].slice(5)}')` : `informeDocente('${i[0]}')`)}" class="btn ${i[2]}">${i[1]}</button>`).join('')
     + '<p class="w-full text-[11px] text-slate-500">Las boletas de calificaciones las emite Rectorado.</p>';
   if (cargar) plCargar();
@@ -1066,15 +1068,16 @@ function sinEstudiantes() { $('pl-area').innerHTML = '<p class="text-center text
 // ---- Periodos pedagógicos y asignaturas cualitativas (Art. 9: no se promedian) ----
 const TIPO_SUB = { lec: 'LECTURA', opt: 'OPTATIVA', aia: 'AIA', ovp: 'OVP' };
 const esCualArt9 = a => /optativ|PPE|participaci[oó]n estudiantil|adicional|acompa[nñ]amiento|orientaci[oó]n vocacional|animaci[oó]n a la lectura/i.test(a || '');
-const tipoAsig = a => !esCualArt9(a) ? '' : (/animaci[oó]n a la lectura/i.test(a) ? 'LECTURA' : 'OPTATIVA');
+const tipoAsig = a => !esCualArt9(a) ? '' : (/animaci[oó]n a la lectura/i.test(a) ? 'LECTURA' : (/orientaci[oó]n vocacional/i.test(a) ? 'OVP' : 'OPTATIVA'));
 const SFON_PTS = { S: 4, F: 3, O: 2, N: 1 };
 function califCualC(tipo, vals, manual) {
   const v = vals.filter(x => SFON_PTS[x]);
   if (tipo === 'OPTATIVA') return { suma: '', calif: manual || '' };
   if (!v.length) return { suma: '', calif: '' };
   if (tipo === 'OVP') {
-    const p = { S: 3, F: 2, O: 1 }, sum = v.reduce((a, x) => a + p[x], 0), avg = sum / v.length;
-    return { suma: sum, calif: avg >= 2.5 ? 'A+' : avg >= 1.5 ? 'A-' : 'B+' };
+    // Igual a la matriz oficial: S=3, F=2, O=1; nota final = suma; 14–15 A+, 10–13 A-, 0–9 B+; sin los 5 indicadores no hay nota
+    const p = { S: 3, F: 2, O: 1 }, sum = v.reduce((a, x) => a + p[x], 0);
+    return { suma: sum, calif: v.length < 5 ? '' : (sum >= 14 ? 'A+' : sum >= 10 ? 'A-' : 'B+'), prom: trunc2(sum / v.length) };
   }
   const suma = v.reduce((a, x) => a + SFON_PTS[x], 0);
   if (tipo === 'LECTURA') {
@@ -1092,13 +1095,13 @@ function renderCualitativa(d) {
   const escala = tipo === 'OVP' ? ['S', 'F', 'O'] : ['S', 'F', 'O', 'N'];
   const info = {
     AIA: `<b>Cívica y Acompañamiento Integral en el Aula</b> (lineamientos 2023 e Instructivo de Evaluación 2025). Registre el <b>consenso de la Junta de Curso</b> de las 9 habilidades: S = Siempre, F = Frecuentemente, O = Ocasionalmente, N = Nunca. La calificación A+ … E- sale de la tabla oficial (sumatoria 9 a 36). Esta evaluación es también la <b>descripción cualitativa del comportamiento</b> que va en la boleta; escriba la descripción en "Observación".`,
-    OVP: `<b>Orientación Vocacional y Profesional – eje: ${esc(d.eje)}</b>. Evalúe los 5 indicadores: S = Siempre (A+), F = Frecuentemente (A-), O = Ocasionalmente (B+). El resultado final (A+, A- o B+) se calcula con el promedio de los indicadores y va a la boleta.`,
+    OVP: `<b>Orientación Vocacional y Profesional – eje: ${esc(d.eje)}</b> (igual a la matriz oficial del MINEDUC). Evalúe los 5 indicadores: S = Siempre (3), F = Frecuentemente (2), O = Ocasionalmente (1). <b>Nota final = suma</b> (5 a 15): <b>14–15 = A+</b>, <b>10–13 = A-</b>, <b>0–9 = B+</b>. Sin los 5 indicadores no se genera la nota.`,
     LECTURA: `<b>Animación a la lectura</b>: evalúe las 6 líneas del lineamiento (S/F/O/N). El sistema sugiere la valoración A+ … E-; no se promedia ni es requisito de promoción (Art. 9).`,
     OPTATIVA: /PPE|participaci[oó]n estudiantil/i.test(d.asignatura) ? `<b>Participación Estudiantil</b>: registro interno de la valoración del trimestre. <b>No forma parte de la boleta de calificaciones</b> ni del promedio.` : `<b>${esc(d.asignatura)}</b> – <b>ASIGNATURA OPTATIVA</b> de evaluación <b>cualitativa</b>. Elija la valoración A+ … E- del trimestre; no entra al promedio del mes, del trimestre ni del año, y no es requisito de promoción (Art. 9).`
   }[tipo];
   let th = '<tr><th>N°</th><th class="text-left min-w-[160px]">Estudiante</th>';
   ind.forEach((t, k) => { th += `<th title="${esc(t)}" class="max-w-[90px]"><span class="block text-[9px] leading-tight font-normal">${esc(t)}</span>${k + 1}</th>`; });
-  th += `${tipo === 'AIA' || tipo === 'OVP' || tipo === 'LECTURA' ? '<th>Suma</th>' : ''}<th>${tipo === 'AIA' ? 'Comportamiento (escala de Acompañamiento Integral)' : 'Valoración'}</th><th class="min-w-[200px]">${tipo === 'AIA' ? 'Descripción del comportamiento / observación' : 'Observación'}</th><th>Drive</th></tr>`;
+  th += `${tipo === 'OVP' ? '<th>Nota final (suma)</th>' : (tipo === 'AIA' || tipo === 'LECTURA' ? '<th>Suma</th>' : '')}<th>${tipo === 'AIA' ? 'Comportamiento (escala de Acompañamiento Integral)' : 'Valoración'}</th><th class="min-w-[200px]">${tipo === 'AIA' ? 'Descripción del comportamiento / observación' : 'Observación'}</th><th>Drive</th></tr>`;
   const rows = d.estudiantes.map((e, i) => {
     let c = '';
     ind.forEach((_, k) => { c += `<td><select class="border rounded p-1 text-[11px] font-bold" data-i="${i}" data-k="${k}" ${dis}>${opts(escala.map(x => ({ v: x, t: x })), e.valores[k], '—')}</select></td>`; });
@@ -1117,7 +1120,7 @@ function renderCualitativa(d) {
 function recalcCual(i) {
   const d = S.pl.data; if (d.tipo === 'OPTATIVA') return;
   const v = [...$('pl-area').querySelectorAll(`select[data-i="${i}"]`)].map(x => x.value), c = califCualC(d.tipo, v);
-  $('qs-' + i).textContent = c.suma === '' ? '' : c.suma;
+  $('qs-' + i).textContent = c.suma === '' ? '' : (d.tipo === 'OVP' ? c.suma + ' (prom. ' + f2(c.prom) + ')' : c.suma);
   if (d.tipo === 'AIA') {
     // Comportamiento: se propone la calificación calculada con las habilidades; el tutor puede elegir otra de la lista.
     const s = $('qc-' + i), n = v.filter(Boolean).length;
@@ -1125,7 +1128,7 @@ function recalcCual(i) {
     $('qcs-' + i).textContent = c.calif ? 'Según habilidades: ' + c.calif + (n < d.indicadores.length ? ' (incompleto)' : '') : '';
     return;
   }
-  $('qv-' + i).textContent = c.calif;
+  $('qv-' + i).textContent = c.calif || (d.tipo === 'OVP' && v.filter(Boolean).length ? '– (faltan indicadores)' : '');
 }
 async function guardarCualitativa() {
   const d = S.pl.data;
@@ -1524,13 +1527,13 @@ function mostrarReporte(r) {
   } else if (r.tipo === 'cualitativo') {
     orient = 'landscape';
     const nom = { AIA: 'Cívica y Acompañamiento Integral en el Aula', OVP: 'Orientación Vocacional y Profesional', LECTURA: 'Animación a la lectura', OPTATIVA: r.asignatura }[r.tipoCual];
-    const escTxt = r.tipoCual === 'OPTATIVA' ? 'Escala A+ … E- (Art. 7 y 9)' : (r.tipoCual === 'OVP' ? 'S Siempre (A+) · F Frecuentemente (A-) · O Ocasionalmente (B+)' : 'S Siempre · F Frecuentemente · O Ocasionalmente · N Nunca');
+    const escTxt = r.tipoCual === 'OPTATIVA' ? 'Escala A+ … E- (Art. 7 y 9)' : (r.tipoCual === 'OVP' ? 'S Siempre = 3 · F Frecuentemente = 2 · O Ocasionalmente = 1 · Nota final (suma): 14–15 A+, 10–13 A-, 0–9 B+' : 'S Siempre · F Frecuentemente · O Ocasionalmente · N Nunca');
     const filas = r.filas.map((x, n) => `<tr><td class="c">${n + 1}</td><td>${esc(x.nombres)}</td>${x.valores.map(v => `<td class="c">${esc(v || '—')}</td>`).join('')}${r.tipoCual === 'OPTATIVA' ? '' : `<td class="c">${esc(x.suma)}</td>`}<td class="c b">${esc(x.calif || '—')}</td><td>${esc(x.desc)}</td><td>${esc(x.obs)}</td></tr>`);
     h = encabezado(r, `${nom} – ${F.trimestre}° trimestre`, 'Evaluación cualitativa: no se promedia y no es requisito de promoción (Art. 9 del Acuerdo 82-A)') +
       ficha([['Jornada', F.jornada], ['Curso', curso], ['Docente', r.docente], r.eje ? ['Eje', r.eje] : null, ['Escala', escTxt]]) +
       tabla(['N°', 'Estudiante'].concat(r.indicadores.map((t, k) => `${k + 1}. ${esc(t)}`), r.tipoCual === 'OPTATIVA' ? [] : ['Suma'], ['Valoración', 'Descripción', 'Observación']), filas) +
       (r.obsGeneral ? `<table><tr><th style="width:22%">Observación general</th><td>${esc(r.obsGeneral)}</td></tr></table>` : '') +
-      firmas([[r.docente, r.tipoCual === 'AIA' || r.tipoCual === 'OVP' ? 'Docente tutor/a' : 'Docente', 'REALIZADO'], vice(r)]) + norma(r);
+      firmas([[r.docente, r.rolDocente || 'Docente', 'REALIZADO'], vice(r)]) + norma(r);
   } else if (r.tipo === 'boleta') {
     h = r.boletas.map(b => {
       const optas = b.materias.filter(m => m.cualitativa && m.grupo === 'OPTATIVA').map(m => ({ nombre: m.asignatura.replace(/^optativa:\s*/i, ''), txt: m.equiv }));
